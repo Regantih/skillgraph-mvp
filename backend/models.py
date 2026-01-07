@@ -4,7 +4,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 from enum import Enum
 from sqlalchemy import Column, String, Float, DateTime, JSON
-from .database import Base
+from database import Base
 
 class IntentType(str, Enum):
     OPEN_TO_WORK = "OPEN_TO_WORK"

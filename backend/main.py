@@ -2,8 +2,8 @@ from fastapi import FastAPI, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from .models import SkillSignal, IntentType, SkillSignalDB
-from .database import engine, Base, get_db
+from models import SkillSignal, IntentType, SkillSignalDB
+from database import engine, Base, get_db
 
 # Create Tables (Auto-migration for simple schema)
 Base.metadata.create_all(bind=engine)

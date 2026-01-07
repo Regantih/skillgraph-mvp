@@ -2,3 +2,7 @@ fastapi
 uvicorn
 pydantic
 python-multipart
+langchain-google-vertexai
+google-cloud-aiplatform
+sqlalchemy
+psycopg2-binary

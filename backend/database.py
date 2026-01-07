@@ -5,7 +5,7 @@ import os
 
 # Get DB URL from Google Cloud Environment or fallback to local for testing
 # Format: postgresql://user:password@ip:port/dbname
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./sql_app.db")
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:////tmp/sql_app.db")
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL

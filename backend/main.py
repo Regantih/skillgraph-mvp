@@ -101,6 +101,67 @@ def stake_verification(request: VerificationRequest, db: Session = Depends(get_d
     
     return {"status": "Verification Staked", "new_balance": verifier.reputation_stake_balance}
 
+@app.get("/trust/graph")
+def get_trust_graph(db: Session = Depends(get_db)):
+    """
+    Returns the Network Graph for Visualization.
+    Nodes: Users (Agents/Verifiers)
+    Edges: Trust Verifications
+    """
+    users = db.query(User).all()
+    edges = db.query(TrustEdge).all()
+    
+    # If empty (Start of Universe), return seed demo data
+    if not users:
+        return {
+            "nodes": [
+                {"id": "A", "label": "Alice (Verifier)", "type": "verifier"},
+                {"id": "B", "label": "Bob (Agent)", "type": "agent"},
+                {"id": "C", "label": "Charlie (Expert)", "type": "verifier"}
+            ],
+            "edges": [
+                {"source": "A", "target": "B", "label": "Python"},
+                {"source": "C", "target": "B", "label": "System Arch"}
+            ]
+        }
+    
+    return {
+        "nodes": [{"id": u.id, "label": u.username or u.id[:8], "type": "verifier" if u.reputation_stake_balance > 0 else "agent"} for u in users],
+        "edges": [{"source": e.source_id, "target": e.target_id, "label": e.skill_tag} for e in edges]
+    }
+
+from core.gap_analysis import GapAnalysisEngine
+
+class CareerAnalysisRequest(BaseModel):
+    user_vectors: Dict[str, float]
+    target_role: str # "Senior Python Dev", "ML Engineer"
+
+@app.post("/career/analyze")
+def analyze_career_gap(request: CareerAnalysisRequest):
+    """
+    Career Guide Engine:
+    Calculates the 'Skill Gap' between you and industry standards.
+    Returns actionable insights (e.g., 'Learn PyTorch').
+    """
+    # 1. Simulate Market Demand Vectors (In Prod, this comes from live job market data)
+    market_profiles = {
+        "Senior Python Dev": {"Python": 0.9, "System Arch": 0.8, "Django": 0.7, "SQL": 0.6},
+        "ML Engineer": {"Python": 0.9, "AI/LLMs": 0.9, "TensorFlow/PyTorch": 0.8, "Math": 0.7},
+        "Frontend Lead": {"React": 0.9, "TypeScript": 0.8, "Design": 0.7, "CSS": 0.8}
+    }
+    
+    target_vector = market_profiles.get(request.target_role)
+    if not target_vector:
+         raise HTTPException(status_code=404, detail=f"Role '{request.target_role}' not data-mined yet. Try 'Senior Python Dev' or 'ML Engineer'.")
+         
+    # 2. Run Engine
+    analysis = GapAnalysisEngine.analyze_gap(request.user_vectors, target_vector)
+    
+    return {
+        "target_role": request.target_role,
+        "analysis": analysis
+    }
+
 # BOOTSTRAP ENDPOINT TO SEED DATA (Since we removed the mock list)
 @app.post("/seed")
 def seed_data(db: Session = Depends(get_db)):
